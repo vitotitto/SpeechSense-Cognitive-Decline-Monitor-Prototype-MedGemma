@@ -1,0 +1,24 @@
+{
+  "dataset": "agentic_manifest_text",
+  "condition": "text_acoustic_narrative_pre_symptoms",
+  "n_clips_total": 2843,
+  "n_clips_excluded_after_symptoms": 272,
+  "n_clips_used": 2571,
+  "n_speakers": 188,
+  "dims": {
+    "clip_embedding_dim": 2560,
+    "speaker_feature_dim": 5120,
+    "aggregation": "[clip_mean(2560), clip_std(2560)]"
+  },
+  "cv_results": {
+    "mean_auc": 0.9112268433321065,
+    "std_auc": 0.04197303718612793,
+    "fold_aucs": [
+      0.907051282051282,
+      0.9472222222222222,
+      0.8666666666666666,
+      0.8654970760233918,
+      0.9696969696969697
+    ]
+  }
+}

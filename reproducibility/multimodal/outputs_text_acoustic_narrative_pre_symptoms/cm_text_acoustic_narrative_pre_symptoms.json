@@ -1,0 +1,15 @@
+{
+  "threshold": 0.5,
+  "labels": [
+    "control",
+    "dementia"
+  ],
+  "n_speakers": 188,
+  "n_excluded_after_symptoms": 272,
+  "matrix": {
+    "tn": 92,
+    "fp": 12,
+    "fn": 16,
+    "tp": 68
+  }
+}

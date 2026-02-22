@@ -1,0 +1,17 @@
+{
+  "model_path": "reproducibility/best_model/text_acoustic_narrative_pre_symptoms.pkl",
+  "n_clips_used": 2571,
+  "n_excluded_after_symptoms": 272,
+  "n_speakers": 188,
+  "n_control": 104,
+  "n_dementia": 84,
+  "train_metrics_apparent": {
+    "auc": 1.0,
+    "f1": 1.0,
+    "accuracy": 1.0
+  },
+  "training_inputs": {
+    "tan_npz": "reproducibility/multimodal/outputs_multimodal_agentic_manifest_text_acoustic_narrative/multimodal_embeddings_agentic_manifest_text_acoustic_narrative.npz",
+    "manifest": "dataset/reference_manifests/manifest_agentic_clean.csv"
+  }
+}
