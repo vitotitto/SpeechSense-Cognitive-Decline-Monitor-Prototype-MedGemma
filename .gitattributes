@@ -1,7 +1,5 @@
-*.wav filter=lfs diff=lfs merge=lfs -text
-*.npz filter=lfs diff=lfs merge=lfs -text
-*.pkl filter=lfs diff=lfs merge=lfs -text
-*.png filter=lfs diff=lfs merge=lfs -text
-*.png !text !filter !merge !diff
-*.pkl !text !filter !merge !diff
-*.npz !text !filter !merge !diff
+# Large binary files
+*.wav binary
+*.npz binary
+*.pkl binary
+*.png binary

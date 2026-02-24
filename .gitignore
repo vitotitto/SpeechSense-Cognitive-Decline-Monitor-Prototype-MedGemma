@@ -5,9 +5,7 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
-# Large data files — hosted on Google Drive (see README)
+# Large audio data — hosted on Google Drive (see README)
 dataset/audio_clips/
 dataset/audio
 dataset/holdout/
-reproducibility/multimodal/outputs_multimodal_agentic_manifest_text_acoustic_narrative/
-reproducibility/best_model/*.pkl
