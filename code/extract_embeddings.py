@@ -2,26 +2,26 @@
 Extract MedGemma Text+Acoustic Narrative Embeddings
 ====================================================
 Processes audio clips through the full pipeline:
-  1. Load audio and (optionally) transcribe with Pyannote/Whisper
-  2. Compute 14 acoustic metrics from the raw waveform (librosa)
+  1. Load pre-existing transcripts (from JSON cache)
+  2. Load audio and compute 14 acoustic metrics (librosa)
   3. Build an acoustic narrative prompt embedding the transcript
      and acoustic descriptors as structured natural language
   4. Pass through MedGemma 4B-IT (4-bit quantised, text-only)
-  5. Mean-pool the last hidden state → 2560-dim embedding per clip
+  5. Mean-pool the last hidden state -> 2560-dim embedding per clip
   6. Save all clip embeddings as a single NPZ file
 
 The resulting NPZ is the input to train_text_acoustic_narrative_pre_symptoms.py
 and evaluate_text_acoustic_narrative_pre_symptoms.py.
+
+Transcripts were pre-extracted using Pyannote precision-2 with
+parakeet-tdt-0.6b-v3 transcription and are provided as a JSON cache.
+This script does not call any transcription API.
 
 Requirements:
   pip install torch transformers bitsandbytes accelerate librosa numpy pandas
 
 Usage:
   python code/extract_embeddings.py
-
-  By default, uses pre-existing transcripts from the manifest CSV
-  (column 'transcript'). If transcripts are unavailable, set
-  USE_WHISPER=True to transcribe with a local Whisper model.
 
   MedGemma requires a Hugging Face token with access to
   google/medgemma-4b-it. Set HF_TOKEN in environment or .env.
@@ -40,14 +40,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "dataset" / "manifest.csv"
 AUDIO_DIR = ROOT / "dataset" / "audio"
+
+# Pre-extracted transcripts (Pyannote precision-2 + parakeet-tdt-0.6b-v3)
+TRANSCRIPT_CACHE = ROOT / "reproducibility" / "transcripts" / "manifest_transcripts.json"
+
 OUTPUT_NPZ = (
     ROOT / "reproducibility" / "multimodal"
     / "outputs_multimodal_agentic_manifest_text_acoustic_narrative"
     / "multimodal_embeddings_agentic_manifest_text_acoustic_narrative.npz"
 )
 
-# Set to True to transcribe with local Whisper instead of using manifest transcripts
-USE_WHISPER = False
 SAMPLE_RATE = 16000
 MAX_TOKEN_LENGTH = 1024
 
@@ -221,6 +223,32 @@ def extract_embedding(model, processor, prompt: str) -> np.ndarray:
 
 # ── Main extraction loop ──────────────────────────────────────────
 
+def load_transcript_cache() -> dict:
+    """Load pre-extracted transcripts keyed by clip stem (filename without extension)."""
+    if not TRANSCRIPT_CACHE.exists():
+        print(f"Transcript cache not found: {TRANSCRIPT_CACHE}")
+        print("Transcripts were pre-extracted using Pyannote precision-2.")
+        return {}
+
+    with open(TRANSCRIPT_CACHE, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+
+    by_stem = {}
+    for _, v in payload.items():
+        if not isinstance(v, dict):
+            continue
+        anon_filename = str(v.get("anon_filename", "")).strip()
+        txt = str(v.get("text", "")).strip()
+        if not anon_filename or len(txt) < 5:
+            continue
+        stem = os.path.splitext(anon_filename)[0]
+        if stem not in by_stem or len(txt) > len(by_stem[stem]):
+            by_stem[stem] = txt
+
+    print(f"Loaded transcript cache: {len(by_stem)} clips")
+    return by_stem
+
+
 def main():
     import sys
 
@@ -232,34 +260,32 @@ def main():
     df = pd.read_csv(MANIFEST_PATH)
     print(f"Manifest: {len(df)} clips, {df['anon_speaker_id'].nunique()} speakers")
 
-    # Resolve audio paths
+    # Load pre-extracted transcripts
+    transcript_map = load_transcript_cache()
+    if not transcript_map:
+        print("ERROR: No transcripts available. Cannot proceed.")
+        sys.exit(1)
+
+    # Build clip list
     clip_stems = []
     audio_paths = []
     transcripts = []
 
-    has_transcripts = "transcript" in df.columns
-    if not has_transcripts and not USE_WHISPER:
-        print("WARNING: No 'transcript' column in manifest and USE_WHISPER=False.")
-        print("  Set USE_WHISPER=True or add transcripts to the manifest.")
-        sys.exit(1)
-
-    # Optional: load local whisper model for transcription
-    whisper_model = None
-    if USE_WHISPER:
-        import whisper
-        print("Loading Whisper model for transcription...")
-        whisper_model = whisper.load_model("base")
-
     for _, row in df.iterrows():
         stem = os.path.splitext(str(row["anon_filename"]))[0]
+        transcript = transcript_map.get(stem, "")
+        if not transcript:
+            continue
+
         audio_path = AUDIO_DIR / row["original_path"].replace("dataset/audio/", "")
         if not audio_path.exists():
-            # Try direct filename lookup
             audio_path = AUDIO_DIR / row.get("group", "") / str(row["anon_speaker_id"]) / row["anon_filename"]
 
         clip_stems.append(stem)
         audio_paths.append(str(audio_path))
-        transcripts.append(str(row.get("transcript", "")) if has_transcripts else "")
+        transcripts.append(transcript)
+
+    print(f"Clips with transcripts: {len(clip_stems)}")
 
     # Load MedGemma
     print("\nLoading MedGemma 4B-IT (4-bit quantised)...")
@@ -278,16 +304,6 @@ def main():
         try:
             # Load audio
             y, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
-
-            # Transcribe if needed
-            if not transcript and whisper_model is not None:
-                result = whisper_model.transcribe(audio_path)
-                transcript = result["text"]
-
-            if not transcript:
-                print(f"  Skipping {stem}: no transcript")
-                n_skipped += 1
-                continue
 
             # Compute acoustic metrics
             metrics = compute_acoustic_metrics(y, sr, transcript)
