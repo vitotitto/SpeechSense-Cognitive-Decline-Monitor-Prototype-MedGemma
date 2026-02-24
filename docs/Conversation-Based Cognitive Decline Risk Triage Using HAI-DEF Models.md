@@ -43,7 +43,7 @@ The results and analyses in the submission exclude post-symptom recordings, the 
 
 **Acoustic Feature Extraction.** The production pipeline uses lightweight signal-processing metrics computed via librosa: speech rate, pause-to-speech ratio, pitch variability (F0 standard deviation), and spectral energy distribution,  across prosodic (0–1 kHz), articulatory (1–4 kHz), and high-frequency (4–8 kHz) bands. 
 
-These descriptors are converted into a **natural-language acoustic narrative** rather than a numerical feature vector. For ablation and convergent validity analysis, we also probe a HeAR ViT backbone by extracting attention-derived features (CLS token attention weights across all 24 transformer layers (not the standard 512-dim pooled embedding)), aggregated (mean + standard deviation) to the speaker level. 
+These descriptors are converted into a **natural-language acoustic narrative** rather than a numerical feature vector. For ablation and convergent validity analysis, a HeAR ViT backbone is also probed by extracting attention-derived features (CLS token attention weights across all 24 transformer layers (not the standard 512-dim pooled embedding)), aggregated (mean + standard deviation) to the speaker level. 
 
 Although HeAR was designed for health acoustics (cough, breathing), speech prosody and phonation share acoustic features with respiratory signals.
 
@@ -68,7 +68,7 @@ This design embeds the acoustic modality through MedGemma’s **text pathway** r
 
 MedGemma jointly reasons over  linguistic content and acoustic characteristics, producing embeddings that reflect the clinical signal of both modalities. The model runs with 4-bit quantisation on a consumer GPU (NVIDIA RTX 3080, 10 GB VRAM), demonstrating edge deployability.
 
-**Stage 4 — Fusion and Classification.** MedGemma embeddings are extracted as the mean-pooled last hidden state (2560-dimensional) across all input tokens per segment. Speaker-level features are constructed by aggregating these embeddings (mean + standard deviation across all segments). In ablation experiments, we also concatenate HeAR-derived speaker-level attention features. A logistic regression classifier with L2 regularisation produces the final risk score.
+**Stage 4 — Fusion and Classification.** MedGemma embeddings are extracted as the mean-pooled last hidden state (2560-dimensional) across all input tokens per segment. Speaker-level features are constructed by aggregating these embeddings (mean + standard deviation across all segments). In ablation experiments, HeAR-derived speaker-level attention features are also concatenated. A logistic regression classifier with L2 regularisation produces the final risk score.
 
 Evaluation uses 5-fold GroupKFold cross-validation with speaker ID as the grouping variable, to make sure no speaker appears in both training and test sets. The classification threshold (0.5) is applied to the out-of-fold predicted probabilities. 
 
@@ -100,7 +100,7 @@ All results are reported on the full curated dataset with post-symptom segments 
 
 ### 3.2 Preliminary Holdout Evaluation
 
-We evaluated on 6 completely unseen speakers (3 dementia, 3 control) processed through the identical curation pipeline:
+The model was evaluated on 6 completely unseen speakers (3 dementia, 3 control) processed through the identical curation pipeline:
 
 | Condition                                           | Holdout AUC |
 | --------------------------------------------------- | ----------- |
@@ -110,7 +110,7 @@ We evaluated on 6 completely unseen speakers (3 dementia, 3 control) processed t
 
 Text-only (transcript embeddings) and text + acoustic narrative both preserved correct rank-ordering of all 6 speakers (AUC 1.0). At threshold 0.5, text-only achieved 4/6, while text + acoustic narrative achieved 5/6 (one marginal false positive at 0.614). Adding HeAR-derived features degraded ranking (AUC 0.667), with one control speaker pushed high and one dementia speaker pushed low.  Despite a very tiny holdout dataset, this may suggest that raw, high-dimensional acoustic representations introduce speaker-discriminative nuisance, whereas injecting interpretable acoustic descriptors via MedGemma’s text pathway is more robust.
 
-Given the small holdout (6 speakers, 9 pairwise comparisons), this could be treated this as directional evidence. We note that perfect text-only AUC on a small sample warrants caution — topic-adjacent content in transcripts (interview framing, health context) could contribute. The post-symptom exclusion mitigates the most direct form of this leakage. We prioritise expanding speaker holdout coverage and reporting sensitivity at fixed specificity to match clinical triage use.
+Given the small holdout (6 speakers, 9 pairwise comparisons), this could be treated this as directional evidence. It should be noted that perfect text-only AUC on a small sample warrants caution — topic-adjacent content in transcripts (interview framing, health context) could contribute. The post-symptom exclusion mitigates the most direct form of this leakage. Future work should prioritise expanding speaker holdout coverage and reporting sensitivity at fixed specificity to match clinical triage use.
 
 The recommended production model is text + acoustic narrative (CV AUC 0.911, holdout AUC 1.000).
 

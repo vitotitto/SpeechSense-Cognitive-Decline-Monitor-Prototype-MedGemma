@@ -1,6 +1,6 @@
 ![Application screenshot](plots/app_screenshot.png)
 
-Reliable biomarkers for neurodegenerative diseases have been a subject of continuous scientific interest for decades. Reduced idea density, semantic paraphasia, increased filler usage, and shorter syntactic trees. In the last five years, the question shifted from "does speech carry diagnostic information?" to "can we extract it reliably, at scale, from real recordings?".
+Reliable biomarkers for neurodegenerative diseases have been a subject of continuous scientific interest for decades. Reduced idea density, semantic paraphasia, increased filler usage, and shorter syntactic trees. In the last five years, the question shifted from "does speech carry diagnostic information?" to "can it be extracted reliably, at scale, from real recordings?".
 
  A number of commercial companies are running initiatives to build such tools.
 
@@ -201,7 +201,7 @@ A larger holdout evaluation with properly validated speakers is needed before an
 
 A single probability score from a single conversation rarely represents the whole picture. Cognitive performance fluctuates, and this system is designed to measure the trajectory over time.
 
-Every recorded interaction passes through the pipeline, selecting the best and longest patient speech samples. Month by month, we can build a curve of the patient's linguistic and acoustic state.
+Every recorded interaction passes through the pipeline, selecting the best and longest patient speech samples. Month by month, a curve of the patient's linguistic and acoustic state can be constructed.
 
 A progressive rise in the risk score over 12 months can be used as a valid longitudinal data point for the clinician to administer screening or a blood test. 
 
