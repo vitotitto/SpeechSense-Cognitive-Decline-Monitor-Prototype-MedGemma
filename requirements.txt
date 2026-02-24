@@ -1,5 +1,20 @@
+# Core ML
 numpy>=2.0
 pandas>=2.2
 scikit-learn>=1.7
 matplotlib>=3.9
 jupyter>=1.0
+
+# Audio processing
+librosa>=0.10
+
+# MedGemma embedding extraction (code/extract_embeddings.py)
+torch>=2.0
+transformers>=4.40
+bitsandbytes>=0.43
+accelerate>=0.30
+
+# Models used (Hugging Face):
+#   google/medgemma-4b-it  — text+acoustic narrative embeddings (core model)
+#   MedASR                 — evaluated for transcription (Pyannote used in production)
+#   HeAR                   — evaluated for acoustic embeddings (dropped from production)
