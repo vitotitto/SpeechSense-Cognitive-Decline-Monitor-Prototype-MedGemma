@@ -6,7 +6,7 @@ Reliable biomarkers for neurodegenerative diseases have been a subject of contin
 
 This repository discusses a prototype system that estimates cognitive risk from natural conversational speech, which is already present in check-in calls and caregiver conversations. It combines linguistic content analysis with acoustic marker profiling to produce a speaker-level risk score that flags individuals who warrant formal cognitive screening.
 
-
+> **Dataset**: Audio files and holdout data are available on [Google Drive](https://drive.google.com/drive/folders/1FZyK-K_WXL4U28AUTKAjDFpx_QWmV24T?usp=sharing)
 
 ## The HAI-DEF models
 
