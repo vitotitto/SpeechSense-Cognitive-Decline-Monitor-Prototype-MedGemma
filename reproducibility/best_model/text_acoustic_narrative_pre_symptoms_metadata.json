@@ -12,6 +12,6 @@
   },
   "training_inputs": {
     "tan_npz": "reproducibility/multimodal/outputs_multimodal_agentic_manifest_text_acoustic_narrative/multimodal_embeddings_agentic_manifest_text_acoustic_narrative.npz",
-    "manifest": "dataset/reference_manifests/manifest_agentic_clean.csv"
+    "manifest": "dataset/manifest.csv"
   }
 }

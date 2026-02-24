@@ -25,7 +25,7 @@ from sklearn.model_selection import GroupKFold
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST_PATH = ROOT / "dataset" / "reference_manifests" / "manifest_agentic_clean.csv"
+MANIFEST_PATH = ROOT / "dataset" / "manifest.csv"
 TAN_NPZ = (
     ROOT
     / "reproducibility"

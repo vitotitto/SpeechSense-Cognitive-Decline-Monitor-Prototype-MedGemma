@@ -6,7 +6,8 @@ __pycache__/
 .DS_Store
 
 # Large data files — hosted on Google Drive (see README)
-dataset/audio_clips/audio/
-dataset/holdout_audio_clips/
+dataset/audio_clips/
+dataset/audio
+dataset/holdout/
 reproducibility/multimodal/outputs_multimodal_agentic_manifest_text_acoustic_narrative/
 reproducibility/best_model/*.pkl
